@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+  xmlns:modeler="http://camunda.org/schema/modeler/1.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  id="Definitions_claim_intake" targetNamespace="http://bpmn.io/schema/bpmn"
+  exporter="Camunda Modeler" exporterVersion="5.40.0"
+  modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.9.0">
+  <bpmn:process id="scaledown_claim_intake" name="ScaleDown claim intake" isExecutable="true">
+    <bpmn:startEvent id="start" name="Claim document received">
+      <bpmn:outgoing>f1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="classify_doc" name="Classify document type" zeebe:modelerTemplate="io.github.rajeshponna.scaledown.v1" zeebe:modelerTemplateVersion="1">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.github.rajeshponna:scaledown:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="classify" target="operation" />
+          <zeebe:input source="{{secrets.SCALEDOWN_API_KEY}}" target="authentication.apiKey" />
+          <zeebe:input source="https://api.scaledown.xyz" target="connection.baseUrl" />
+          <zeebe:input source="120" target="connection.timeoutSeconds" />
+          <zeebe:input source="=false" target="connection.includeOcrText" />
+          <zeebe:input source="=false" target="connection.includeRawResponse" />
+          <zeebe:input source="document" target="input.source" />
+          <zeebe:input source="=claimDocument" target="input.document" />
+          <zeebe:input source="={&quot;claim_form&quot;: &quot;Is this an insurance claim form filled in by a customer?&quot;, &quot;repair_estimate&quot;: &quot;Is this a garage repair quote or estimate with costs?&quot;, &quot;police_report&quot;: &quot;Is this a police report or FIR?&quot;, &quot;other&quot;: &quot;Is this some other kind of document?&quot;}" target="classify.labels" />
+          <zeebe:input source="=false" target="classify.multiLabel" />
+          <zeebe:input source="=true" target="classify.reasoning" />
+          <zeebe:input source="=0.7" target="review.minConfidence" />
+          <zeebe:input source="flag" target="review.onLowConfidence" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="1" />
+          <zeebe:header key="elementTemplateId" value="io.github.rajeshponna.scaledown.v1" />
+          <zeebe:header key="resultVariable" value="docType" />
+          <zeebe:header key="retryBackoff" value="PT30S" />
+          <zeebe:header key="resultExpression" value="={docType: docType.topLabel, docTypeReview: docType.needsReview}" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>f1</bpmn:incoming>
+      <bpmn:outgoing>f2</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="extract_fields" name="Extract claim details" zeebe:modelerTemplate="io.github.rajeshponna.scaledown.v1" zeebe:modelerTemplateVersion="1">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.github.rajeshponna:scaledown:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="extract" target="operation" />
+          <zeebe:input source="{{secrets.SCALEDOWN_API_KEY}}" target="authentication.apiKey" />
+          <zeebe:input source="https://api.scaledown.xyz" target="connection.baseUrl" />
+          <zeebe:input source="120" target="connection.timeoutSeconds" />
+          <zeebe:input source="=false" target="connection.includeOcrText" />
+          <zeebe:input source="=false" target="connection.includeRawResponse" />
+          <zeebe:input source="document" target="input.source" />
+          <zeebe:input source="=claimDocument" target="input.document" />
+          <zeebe:input source="extract-1" target="extract.model" />
+          <zeebe:input source="fields" target="extract.schemaMode" />
+          <zeebe:input source="={&quot;policyNumber&quot;: &quot;Insurance policy number&quot;, &quot;customerName&quot;: &quot;Full name of the policy holder&quot;, &quot;vehicleNumber&quot;: &quot;Vehicle registration number&quot;, &quot;incidentDate&quot;: &quot;Date the incident happened&quot;, &quot;incidentDescription&quot;: &quot;What happened, in the customer's words&quot;, &quot;estimatedAmount&quot;: &quot;Claimed or estimated repair amount&quot;}" target="extract.fields" />
+          <zeebe:input source="=0" target="extract.contextChars" />
+          <zeebe:input source="=0.6" target="review.minConfidence" />
+          <zeebe:input source="flag" target="review.onLowConfidence" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="1" />
+          <zeebe:header key="elementTemplateId" value="io.github.rajeshponna.scaledown.v1" />
+          <zeebe:header key="resultVariable" value="claim" />
+          <zeebe:header key="retryBackoff" value="PT30S" />
+          <zeebe:header key="resultExpression" value="={claim: claim.fields, claimMissing: claim.missingFields, claimReview: claim.needsReview}" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>f3</bpmn:incoming>
+      <bpmn:outgoing>f5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="decide_claim" name="Decide claim handling" zeebe:modelerTemplate="io.github.rajeshponna.scaledown.v1" zeebe:modelerTemplateVersion="1">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.github.rajeshponna:scaledown:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="decisions" target="operation" />
+          <zeebe:input source="{{secrets.SCALEDOWN_API_KEY}}" target="authentication.apiKey" />
+          <zeebe:input source="https://api.scaledown.xyz" target="connection.baseUrl" />
+          <zeebe:input source="120" target="connection.timeoutSeconds" />
+          <zeebe:input source="=false" target="connection.includeOcrText" />
+          <zeebe:input source="=false" target="connection.includeRawResponse" />
+          <zeebe:input source="text" target="input.source" />
+          <zeebe:input source="=&quot;Incident: &quot; + string(claim.incidentDescription) + &quot;. Amount: &quot; + string(claim.estimatedAmount)" target="input.text" />
+          <zeebe:input source="classify-1" target="decisions.model" />
+          <zeebe:input source="={&quot;claimType&quot;: {&quot;type&quot;: &quot;choice&quot;, &quot;instructions&quot;: &quot;What kind of claim is this?&quot;, &quot;criteria&quot;: {&quot;collision&quot;: &quot;Vehicle hit another vehicle or object&quot;, &quot;theft&quot;: &quot;Vehicle or parts were stolen&quot;, &quot;natural&quot;: &quot;Flood, storm or falling tree&quot;}}, &quot;fraudSignal&quot;: {&quot;type&quot;: &quot;noul&quot;, &quot;instructions&quot;: &quot;Does the story have inconsistencies or signs of exaggeration?&quot;}, &quot;severity&quot;: {&quot;type&quot;: &quot;score&quot;, &quot;criteria&quot;: [&quot;Minor&quot;, &quot;Moderate&quot;, &quot;Major&quot;, &quot;Total loss&quot;]}}" target="decisions.questions" />
+          <zeebe:input source="=0.7" target="review.minConfidence" />
+          <zeebe:input source="flag" target="review.onLowConfidence" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="1" />
+          <zeebe:header key="elementTemplateId" value="io.github.rajeshponna.scaledown.v1" />
+          <zeebe:header key="resultVariable" value="decision" />
+          <zeebe:header key="retryBackoff" value="PT30S" />
+          <zeebe:header key="resultExpression" value="={claimType: decision.decisions.claimType, fraudRisk: decision.decisions.fraudSignal, severity: decision.decisions.severity, decisionReview: decision.needsReview}" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>f5</bpmn:incoming>
+      <bpmn:outgoing>f6</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="summarize_case" name="Summarize for adjuster" zeebe:modelerTemplate="io.github.rajeshponna.scaledown.v1" zeebe:modelerTemplateVersion="1">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.github.rajeshponna:scaledown:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="summarize" target="operation" />
+          <zeebe:input source="{{secrets.SCALEDOWN_API_KEY}}" target="authentication.apiKey" />
+          <zeebe:input source="https://api.scaledown.xyz" target="connection.baseUrl" />
+          <zeebe:input source="120" target="connection.timeoutSeconds" />
+          <zeebe:input source="=false" target="connection.includeOcrText" />
+          <zeebe:input source="=false" target="connection.includeRawResponse" />
+          <zeebe:input source="document" target="input.source" />
+          <zeebe:input source="=claimDocument" target="input.document" />
+          <zeebe:input source="summarize-1" target="summarize.model" />
+          <zeebe:input source="Use bullet points. Cover what happened, the damage, the amount claimed and anything unusual." target="summarize.instruction" />
+          <zeebe:input source="=400" target="summarize.maxTokens" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="1" />
+          <zeebe:header key="elementTemplateId" value="io.github.rajeshponna.scaledown.v1" />
+          <zeebe:header key="resultVariable" value="caseSummary" />
+          <zeebe:header key="retryBackoff" value="PT30S" />
+          <zeebe:header key="resultExpression" value="={caseSummary: caseSummary.summary}" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>f8</bpmn:incoming>
+      <bpmn:outgoing>f9</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="gw_doc" name="Claim form?" default="f4">
+      <bpmn:incoming>f2</bpmn:incoming>
+      <bpmn:outgoing>f3</bpmn:outgoing>
+      <bpmn:outgoing>f4</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="gw_auto" name="Auto-approve?" default="f8">
+      <bpmn:incoming>f6</bpmn:incoming>
+      <bpmn:outgoing>f7</bpmn:outgoing>
+      <bpmn:outgoing>f8</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="manual_sort" name="Sort document manually">
+      <bpmn:extensionElements><zeebe:userTask /></bpmn:extensionElements>
+      <bpmn:incoming>f4</bpmn:incoming>
+      <bpmn:outgoing>f11</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="adjuster_review" name="Adjuster review">
+      <bpmn:extensionElements><zeebe:userTask /></bpmn:extensionElements>
+      <bpmn:incoming>f9</bpmn:incoming>
+      <bpmn:outgoing>f10</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="end_approved" name="Claim auto-approved">
+      <bpmn:incoming>f7</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="end_reviewed" name="Claim reviewed">
+      <bpmn:incoming>f10</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="end_sorted" name="Document sorted">
+      <bpmn:incoming>f11</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="f1" sourceRef="start" targetRef="classify_doc" />
+    <bpmn:sequenceFlow id="f2" sourceRef="classify_doc" targetRef="gw_doc" />
+    <bpmn:sequenceFlow id="f3" sourceRef="gw_doc" targetRef="extract_fields">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=docType = "claim_form" and docTypeReview = false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f4" sourceRef="gw_doc" targetRef="manual_sort" />
+    <bpmn:sequenceFlow id="f5" sourceRef="extract_fields" targetRef="decide_claim" />
+    <bpmn:sequenceFlow id="f6" sourceRef="decide_claim" targetRef="gw_auto" />
+    <bpmn:sequenceFlow id="f7" sourceRef="gw_auto" targetRef="end_approved">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=claimReview = false and decisionReview = false and fraudRisk &lt; 0.2 and severity &lt; 1.5</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="f8" sourceRef="gw_auto" targetRef="summarize_case" />
+    <bpmn:sequenceFlow id="f9" sourceRef="summarize_case" targetRef="adjuster_review" />
+    <bpmn:sequenceFlow id="f10" sourceRef="adjuster_review" targetRef="end_reviewed" />
+    <bpmn:sequenceFlow id="f11" sourceRef="manual_sort" targetRef="end_sorted" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="scaledown_claim_intake">
+      <bpmndi:BPMNShape id="start_di" bpmnElement="start">
+        <dc:Bounds x="160" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="classify_doc_di" bpmnElement="classify_doc">
+        <dc:Bounds x="250" y="200" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_doc_di" bpmnElement="gw_doc" isMarkerVisible="true">
+        <dc:Bounds x="420" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="extract_fields_di" bpmnElement="extract_fields">
+        <dc:Bounds x="520" y="200" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="decide_claim_di" bpmnElement="decide_claim">
+        <dc:Bounds x="690" y="200" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="gw_auto_di" bpmnElement="gw_auto" isMarkerVisible="true">
+        <dc:Bounds x="860" y="215" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_approved_di" bpmnElement="end_approved">
+        <dc:Bounds x="972" y="222" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="summarize_case_di" bpmnElement="summarize_case">
+        <dc:Bounds x="960" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="adjuster_review_di" bpmnElement="adjuster_review">
+        <dc:Bounds x="1130" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_reviewed_di" bpmnElement="end_reviewed">
+        <dc:Bounds x="1302" y="352" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="manual_sort_di" bpmnElement="manual_sort">
+        <dc:Bounds x="520" y="330" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="end_sorted_di" bpmnElement="end_sorted">
+        <dc:Bounds x="692" y="352" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="f1_di" bpmnElement="f1">
+        <di:waypoint x="196" y="240" />
+        <di:waypoint x="250" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f2_di" bpmnElement="f2">
+        <di:waypoint x="370" y="240" />
+        <di:waypoint x="420" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f3_di" bpmnElement="f3">
+        <di:waypoint x="470" y="240" />
+        <di:waypoint x="520" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f4_di" bpmnElement="f4">
+        <di:waypoint x="445" y="265" />
+        <di:waypoint x="445" y="370" />
+        <di:waypoint x="520" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f5_di" bpmnElement="f5">
+        <di:waypoint x="640" y="240" />
+        <di:waypoint x="690" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f6_di" bpmnElement="f6">
+        <di:waypoint x="810" y="240" />
+        <di:waypoint x="860" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f7_di" bpmnElement="f7">
+        <di:waypoint x="910" y="240" />
+        <di:waypoint x="972" y="240" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f8_di" bpmnElement="f8">
+        <di:waypoint x="885" y="265" />
+        <di:waypoint x="885" y="370" />
+        <di:waypoint x="960" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f9_di" bpmnElement="f9">
+        <di:waypoint x="1080" y="370" />
+        <di:waypoint x="1130" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f10_di" bpmnElement="f10">
+        <di:waypoint x="1250" y="370" />
+        <di:waypoint x="1302" y="370" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="f11_di" bpmnElement="f11">
+        <di:waypoint x="640" y="370" />
+        <di:waypoint x="692" y="370" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

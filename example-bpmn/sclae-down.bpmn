@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_10acxe5" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.48.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.9.0">
+  <bpmn:process id="Process_0z80auz" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_187758v</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_187758v" sourceRef="StartEvent_1" targetRef="Activity_1uq09me" />
+    <bpmn:serviceTask id="Activity_1kjgovl" name="Classify document (OCR)" zeebe:modelerTemplate="io.github.rajeshponna.scaledown.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/png;base64,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">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.github.rajeshponna:scaledown:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="classify" target="operation" />
+          <zeebe:input source="{{secrets.SCALEDOWN_API_KEY}}" target="authentication.apiKey" />
+          <zeebe:input source="document" target="input.source" />
+          <zeebe:input source="=doc_file[1]" target="input.document" />
+          <zeebe:input source="={&#34;invoice&#34;: &#34;Is this an invoice asking for payment?&#34;, &#34;receipt&#34;: &#34;Is this a receipt or payment confirmation?&#34;, &#34;bank_statement&#34;: &#34;Is this a bank or card statement listing transactions?&#34;, &#34;other&#34;: &#34;Is this some other document, such as a letter or screenshot?&#34;}" target="classify.labels" />
+          <zeebe:input source="=false" target="classify.multiLabel" />
+          <zeebe:input source="=true" target="classify.reasoning" />
+          <zeebe:input source="=0.6" target="review.minConfidence" />
+          <zeebe:input source="flag" target="review.onLowConfidence" />
+          <zeebe:input source="https://api.scaledown.xyz" target="connection.baseUrl" />
+          <zeebe:input source="120" target="connection.timeoutSeconds" />
+          <zeebe:input source="=true" target="connection.includeOcrText" />
+          <zeebe:input source="=false" target="connection.includeRawResponse" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="1" />
+          <zeebe:header key="elementTemplateId" value="io.github.rajeshponna.scaledown.v1" />
+          <zeebe:header key="resultVariable" value="scaledownResult" />
+          <zeebe:header key="retryBackoff" value="PT30S" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1beagxb</bpmn:incoming>
+      <bpmn:outgoing>Flow_1n597ic</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0m8qh41" sourceRef="Activity_1uq09me" targetRef="Gateway_04fkwqo" />
+    <bpmn:userTask id="Activity_1uq09me" name="enter-ticket-form">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+        <zeebe:formDefinition formId="scale" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_187758v</bpmn:incoming>
+      <bpmn:outgoing>Flow_0m8qh41</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1beagxb" sourceRef="Gateway_04fkwqo" targetRef="Activity_1kjgovl" />
+    <bpmn:parallelGateway id="Gateway_04fkwqo">
+      <bpmn:incoming>Flow_0m8qh41</bpmn:incoming>
+      <bpmn:outgoing>Flow_1beagxb</bpmn:outgoing>
+      <bpmn:outgoing>Flow_18f0tql</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1h7kcpv</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1910fw6</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1vq3r42</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:serviceTask id="Activity_1fl9ss7" name="Decisions (message)" zeebe:modelerTemplate="io.github.rajeshponna.scaledown.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/png;base64,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">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.github.rajeshponna:scaledown:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="decisions" target="operation" />
+          <zeebe:input source="{{secrets.SCALEDOWN_API_KEY}}" target="authentication.apiKey" />
+          <zeebe:input source="text" target="input.source" />
+          <zeebe:input source="=ticketText" target="input.text" />
+          <zeebe:input source="classify-1" target="decisions.model" />
+          <zeebe:input source="={&#34;category&#34;: {&#34;type&#34;: &#34;choice&#34;, &#34;instructions&#34;: &#34;Which category best describes the request?&#34;, &#34;criteria&#34;: {&#34;billing&#34;: &#34;About a charge, invoice, refund or payment.&#34;, &#34;technical&#34;: &#34;About a bug or something not working.&#34;, &#34;account&#34;: &#34;About login or account settings.&#34;}}, &#34;churnRisk&#34;: {&#34;type&#34;: &#34;noul&#34;, &#34;instructions&#34;: &#34;Is the customer threatening to cancel or leave?&#34;}, &#34;severity&#34;: {&#34;type&#34;: &#34;score&#34;, &#34;criteria&#34;: [&#34;Low&#34;, &#34;Medium&#34;, &#34;High&#34;, &#34;Critical&#34;]}}" target="decisions.questions" />
+          <zeebe:input source="=0.35" target="review.minConfidence" />
+          <zeebe:input source="flag" target="review.onLowConfidence" />
+          <zeebe:input source="https://api.scaledown.xyz" target="connection.baseUrl" />
+          <zeebe:input source="120" target="connection.timeoutSeconds" />
+          <zeebe:input source="=false" target="connection.includeOcrText" />
+          <zeebe:input source="=false" target="connection.includeRawResponse" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="1" />
+          <zeebe:header key="elementTemplateId" value="io.github.rajeshponna.scaledown.v1" />
+          <zeebe:header key="resultVariable" value="decisionsResult" />
+          <zeebe:header key="retryBackoff" value="PT30S" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_18f0tql</bpmn:incoming>
+      <bpmn:outgoing>Flow_05635ov</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0hbgl19" name="Extract from document (OCR)" zeebe:modelerTemplate="io.github.rajeshponna.scaledown.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/png;base64,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">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.github.rajeshponna:scaledown:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="extract" target="operation" />
+          <zeebe:input source="{{secrets.SCALEDOWN_API_KEY}}" target="authentication.apiKey" />
+          <zeebe:input source="document" target="input.source" />
+          <zeebe:input source="=doc_file[1]" target="input.document" />
+          <zeebe:input source="extract-1" target="extract.model" />
+          <zeebe:input source="fields" target="extract.schemaMode" />
+          <zeebe:input source="={&#34;name&#34;: &#34;Name of the person or company on the document&#34;,&#10; &#34;documentNumber&#34;: &#34;Invoice, receipt or reference number&#34;,&#10; &#34;amount&#34;: &#34;Total amount&#34;,&#10; &#34;date&#34;: &#34;Date on the document&#34;&#10;}" target="extract.fields" />
+          <zeebe:input source="0" target="extract.contextChars" />
+          <zeebe:input source="=0.5" target="review.minConfidence" />
+          <zeebe:input source="flag" target="review.onLowConfidence" />
+          <zeebe:input source="https://api.scaledown.xyz" target="connection.baseUrl" />
+          <zeebe:input source="120" target="connection.timeoutSeconds" />
+          <zeebe:input source="=true" target="connection.includeOcrText" />
+          <zeebe:input source="=false" target="connection.includeRawResponse" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="1" />
+          <zeebe:header key="elementTemplateId" value="io.github.rajeshponna.scaledown.v1" />
+          <zeebe:header key="resultVariable" value="extractResult" />
+          <zeebe:header key="retryBackoff" value="PT30S" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1h7kcpv</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ocnlps</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_00da8kf" name="Summarize document (OCR)" zeebe:modelerTemplate="io.github.rajeshponna.scaledown.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/png;base64,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">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.github.rajeshponna:scaledown:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="summarize" target="operation" />
+          <zeebe:input source="{{secrets.SCALEDOWN_API_KEY}}" target="authentication.apiKey" />
+          <zeebe:input source="document" target="input.source" />
+          <zeebe:input source="=doc_file[1]" target="input.document" />
+          <zeebe:input source="summarize-1" target="summarize.model" />
+          <zeebe:input source="=&#34;Two short bullet points: what this document is and the key amount or date.&#34;" target="summarize.instruction" />
+          <zeebe:input source="=200" target="summarize.maxTokens" />
+          <zeebe:input source="https://api.scaledown.xyz" target="connection.baseUrl" />
+          <zeebe:input source="120" target="connection.timeoutSeconds" />
+          <zeebe:input source="=true" target="connection.includeOcrText" />
+          <zeebe:input source="=false" target="connection.includeRawResponse" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="1" />
+          <zeebe:header key="elementTemplateId" value="io.github.rajeshponna.scaledown.v1" />
+          <zeebe:header key="resultVariable" value="summarizeResult" />
+          <zeebe:header key="retryBackoff" value="PT30S" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1910fw6</bpmn:incoming>
+      <bpmn:outgoing>Flow_09begzc</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_18f0tql" sourceRef="Gateway_04fkwqo" targetRef="Activity_1fl9ss7" />
+    <bpmn:sequenceFlow id="Flow_1h7kcpv" sourceRef="Gateway_04fkwqo" targetRef="Activity_0hbgl19" />
+    <bpmn:sequenceFlow id="Flow_1910fw6" sourceRef="Gateway_04fkwqo" targetRef="Activity_00da8kf" />
+    <bpmn:serviceTask id="Activity_1xc5rbq" name="Compress policy (message)" zeebe:modelerTemplate="io.github.rajeshponna.scaledown.v1" zeebe:modelerTemplateVersion="1" zeebe:modelerTemplateIcon="data:image/png;base64,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">
+      <bpmn:extensionElements>
+        <zeebe:taskDefinition type="io.github.rajeshponna:scaledown:1" retries="3" />
+        <zeebe:ioMapping>
+          <zeebe:input source="compress" target="operation" />
+          <zeebe:input source="{{secrets.SCALEDOWN_API_KEY}}" target="authentication.apiKey" />
+          <zeebe:input source="=policyText" target="compress.context" />
+          <zeebe:input source="=ticketText" target="compress.prompt" />
+          <zeebe:input source="auto" target="compress.rate" />
+          <zeebe:input source="https://api.scaledown.xyz" target="connection.baseUrl" />
+          <zeebe:input source="120" target="connection.timeoutSeconds" />
+          <zeebe:input source="=false" target="connection.includeRawResponse" />
+        </zeebe:ioMapping>
+        <zeebe:taskHeaders>
+          <zeebe:header key="elementTemplateVersion" value="1" />
+          <zeebe:header key="elementTemplateId" value="io.github.rajeshponna.scaledown.v1" />
+          <zeebe:header key="resultVariable" value="scaledownResult" />
+          <zeebe:header key="retryBackoff" value="PT30S" />
+        </zeebe:taskHeaders>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1vq3r42</bpmn:incoming>
+      <bpmn:outgoing>Flow_0yyfams</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1vq3r42" sourceRef="Gateway_04fkwqo" targetRef="Activity_1xc5rbq" />
+    <bpmn:parallelGateway id="Gateway_1nm5lqf">
+      <bpmn:incoming>Flow_1n597ic</bpmn:incoming>
+      <bpmn:incoming>Flow_05635ov</bpmn:incoming>
+      <bpmn:incoming>Flow_1ocnlps</bpmn:incoming>
+      <bpmn:incoming>Flow_09begzc</bpmn:incoming>
+      <bpmn:incoming>Flow_0yyfams</bpmn:incoming>
+      <bpmn:outgoing>Flow_01bosz3</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_1n597ic" sourceRef="Activity_1kjgovl" targetRef="Gateway_1nm5lqf" />
+    <bpmn:sequenceFlow id="Flow_05635ov" sourceRef="Activity_1fl9ss7" targetRef="Gateway_1nm5lqf" />
+    <bpmn:sequenceFlow id="Flow_1ocnlps" sourceRef="Activity_0hbgl19" targetRef="Gateway_1nm5lqf" />
+    <bpmn:sequenceFlow id="Flow_09begzc" sourceRef="Activity_00da8kf" targetRef="Gateway_1nm5lqf" />
+    <bpmn:sequenceFlow id="Flow_0yyfams" sourceRef="Activity_1xc5rbq" targetRef="Gateway_1nm5lqf" />
+    <bpmn:sequenceFlow id="Flow_01bosz3" sourceRef="Gateway_1nm5lqf" targetRef="Activity_03o9ilj" />
+    <bpmn:endEvent id="Event_0bnqn0m">
+      <bpmn:incoming>Flow_0jllxms</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0jllxms" sourceRef="Activity_03o9ilj" targetRef="Event_0bnqn0m" />
+    <bpmn:userTask id="Activity_03o9ilj" name="Response check">
+      <bpmn:extensionElements>
+        <zeebe:userTask />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_01bosz3</bpmn:incoming>
+      <bpmn:outgoing>Flow_0jllxms</bpmn:outgoing>
+    </bpmn:userTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_0z80auz">
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="152" y="422" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0xthira_di" bpmnElement="Activity_1uq09me">
+        <dc:Bounds x="250" y="400" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_023nhwk_di" bpmnElement="Gateway_04fkwqo">
+        <dc:Bounds x="415" y="415" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1vuktg4_di" bpmnElement="Gateway_1nm5lqf">
+        <dc:Bounds x="855" y="415" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0lp96y4_di" bpmnElement="Activity_03o9ilj">
+        <dc:Bounds x="1000" y="400" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0bnqn0m_di" bpmnElement="Event_0bnqn0m">
+        <dc:Bounds x="1172" y="422" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0c2a7ul_di" bpmnElement="Activity_1kjgovl">
+        <dc:Bounds x="604" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1953q8g" bpmnElement="Activity_1fl9ss7">
+        <dc:Bounds x="604" y="250" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1qf1q3d" bpmnElement="Activity_0hbgl19">
+        <dc:Bounds x="604" y="400" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0f5e0d1" bpmnElement="Activity_00da8kf">
+        <dc:Bounds x="610" y="570" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0qn6x27" bpmnElement="Activity_1xc5rbq">
+        <dc:Bounds x="610" y="750" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_187758v_di" bpmnElement="Flow_187758v">
+        <di:waypoint x="188" y="440" />
+        <di:waypoint x="250" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0m8qh41_di" bpmnElement="Flow_0m8qh41">
+        <di:waypoint x="350" y="440" />
+        <di:waypoint x="415" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1beagxb_di" bpmnElement="Flow_1beagxb">
+        <di:waypoint x="440" y="415" />
+        <di:waypoint x="440" y="120" />
+        <di:waypoint x="604" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18f0tql_di" bpmnElement="Flow_18f0tql">
+        <di:waypoint x="440" y="415" />
+        <di:waypoint x="440" y="290" />
+        <di:waypoint x="604" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1h7kcpv_di" bpmnElement="Flow_1h7kcpv">
+        <di:waypoint x="465" y="440" />
+        <di:waypoint x="604" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1910fw6_di" bpmnElement="Flow_1910fw6">
+        <di:waypoint x="440" y="465" />
+        <di:waypoint x="440" y="610" />
+        <di:waypoint x="610" y="610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vq3r42_di" bpmnElement="Flow_1vq3r42">
+        <di:waypoint x="440" y="465" />
+        <di:waypoint x="440" y="790" />
+        <di:waypoint x="610" y="790" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1n597ic_di" bpmnElement="Flow_1n597ic">
+        <di:waypoint x="704" y="120" />
+        <di:waypoint x="880" y="120" />
+        <di:waypoint x="880" y="415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05635ov_di" bpmnElement="Flow_05635ov">
+        <di:waypoint x="704" y="290" />
+        <di:waypoint x="880" y="290" />
+        <di:waypoint x="880" y="415" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ocnlps_di" bpmnElement="Flow_1ocnlps">
+        <di:waypoint x="704" y="440" />
+        <di:waypoint x="855" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09begzc_di" bpmnElement="Flow_09begzc">
+        <di:waypoint x="710" y="610" />
+        <di:waypoint x="880" y="610" />
+        <di:waypoint x="880" y="465" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0yyfams_di" bpmnElement="Flow_0yyfams">
+        <di:waypoint x="710" y="790" />
+        <di:waypoint x="880" y="790" />
+        <di:waypoint x="880" y="465" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01bosz3_di" bpmnElement="Flow_01bosz3">
+        <di:waypoint x="905" y="440" />
+        <di:waypoint x="1000" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jllxms_di" bpmnElement="Flow_0jllxms">
+        <di:waypoint x="1100" y="440" />
+        <di:waypoint x="1172" y="440" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

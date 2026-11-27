@@ -1,0 +1,956 @@
+{
+  "$schema": "https://unpkg.com/@camunda/zeebe-element-templates-json-schema/resources/schema.json",
+  "name": "ScaleDown Connector",
+  "id": "io.github.rajeshponna.scaledown.v1",
+  "description": "Classify, extract, summarize, decide and compress with ScaleDown Constrained Decoding Models. Works on text, PDFs and images.",
+  "keywords": [
+    "scaledown",
+    "classify",
+    "extract",
+    "summarize",
+    "compress",
+    "decisions",
+    "jev",
+    "document",
+    "ocr",
+    "idp",
+    "ai",
+    "routing"
+  ],
+  "documentationRef": "https://docs.scaledown.ai",
+  "version": 1,
+  "category": {
+    "id": "connectors",
+    "name": "Connectors"
+  },
+  "appliesTo": [
+    "bpmn:Task"
+  ],
+  "elementType": {
+    "value": "bpmn:ServiceTask"
+  },
+  "engines": {
+    "camunda": "^8.7"
+  },
+  "groups": [
+    {
+      "id": "operation",
+      "label": "Operation"
+    },
+    {
+      "id": "authentication",
+      "label": "Authentication"
+    },
+    {
+      "id": "input",
+      "label": "Input"
+    },
+    {
+      "id": "classify",
+      "label": "Classify"
+    },
+    {
+      "id": "decisions",
+      "label": "Decisions"
+    },
+    {
+      "id": "extract",
+      "label": "Extract"
+    },
+    {
+      "id": "summarize",
+      "label": "Summarize"
+    },
+    {
+      "id": "compress",
+      "label": "Compress"
+    },
+    {
+      "id": "review",
+      "label": "Confidence and review"
+    },
+    {
+      "id": "advanced",
+      "label": "Advanced",
+      "openByDefault": false
+    },
+    {
+      "id": "connector",
+      "label": "Connector"
+    },
+    {
+      "id": "output",
+      "label": "Output mapping"
+    },
+    {
+      "id": "error",
+      "label": "Error handling"
+    },
+    {
+      "id": "retries",
+      "label": "Retries"
+    }
+  ],
+  "properties": [
+    {
+      "type": "Hidden",
+      "value": "io.github.rajeshponna:scaledown:1",
+      "binding": {
+        "type": "zeebe:taskDefinition",
+        "property": "type"
+      }
+    },
+    {
+      "id": "version",
+      "type": "Hidden",
+      "value": "1",
+      "group": "connector",
+      "binding": {
+        "type": "zeebe:taskHeader",
+        "key": "elementTemplateVersion"
+      }
+    },
+    {
+      "id": "id",
+      "type": "Hidden",
+      "value": "io.github.rajeshponna.scaledown.v1",
+      "group": "connector",
+      "binding": {
+        "type": "zeebe:taskHeader",
+        "key": "elementTemplateId"
+      }
+    },
+    {
+      "id": "operation",
+      "label": "Operation",
+      "group": "operation",
+      "type": "Dropdown",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "operation"
+      },
+      "value": "classify",
+      "description": "Which ScaleDown model to call.",
+      "choices": [
+        {
+          "name": "Classify: pick a label for text or a document",
+          "value": "classify"
+        },
+        {
+          "name": "Decisions: answer named business questions (Jev-compatible)",
+          "value": "decisions"
+        },
+        {
+          "name": "Extract: pull structured fields from text or a document",
+          "value": "extract"
+        },
+        {
+          "name": "Summarize: summarize text or a document",
+          "value": "summarize"
+        },
+        {
+          "name": "Compress: shrink context before an LLM call",
+          "value": "compress"
+        }
+      ]
+    },
+    {
+      "id": "authentication.apiKey",
+      "label": "API key",
+      "group": "authentication",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "authentication.apiKey"
+      },
+      "value": "{{secrets.SCALEDOWN_API_KEY}}",
+      "feel": "optional",
+      "constraints": {
+        "notEmpty": true
+      },
+      "description": "ScaleDown API key. Store it as a connector secret, never in plain text."
+    },
+    {
+      "id": "input.source",
+      "label": "Input source",
+      "group": "input",
+      "type": "Dropdown",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "input.source"
+      },
+      "value": "text",
+      "condition": {
+        "property": "operation",
+        "oneOf": [
+          "classify",
+          "decisions",
+          "extract",
+          "summarize"
+        ],
+        "type": "simple"
+      },
+      "choices": [
+        {
+          "name": "Text",
+          "value": "text"
+        },
+        {
+          "name": "Document (PDF, JPEG, PNG, TIFF)",
+          "value": "document"
+        },
+        {
+          "name": "Batch of text chunks (Classify only)",
+          "value": "chunks"
+        }
+      ]
+    },
+    {
+      "id": "input.text",
+      "label": "Text",
+      "group": "input",
+      "type": "Text",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "input.text"
+      },
+      "feel": "optional",
+      "condition": {
+        "allMatch": [
+          {
+            "property": "operation",
+            "oneOf": [
+              "classify",
+              "decisions",
+              "extract",
+              "summarize"
+            ],
+            "type": "simple"
+          },
+          {
+            "property": "input.source",
+            "equals": "text",
+            "type": "simple"
+          }
+        ]
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "description": "The text to process. Can be a FEEL expression, e.g. <code>=emailBody</code>."
+    },
+    {
+      "id": "input.document",
+      "label": "Document",
+      "group": "input",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "input.document"
+      },
+      "feel": "required",
+      "condition": {
+        "allMatch": [
+          {
+            "property": "operation",
+            "oneOf": [
+              "classify",
+              "decisions",
+              "extract",
+              "summarize"
+            ],
+            "type": "simple"
+          },
+          {
+            "property": "input.source",
+            "equals": "document",
+            "type": "simple"
+          }
+        ]
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "placeholder": "=claimForm",
+      "description": "A Camunda document reference, e.g. <code>=documents[1]</code> from a form upload or inbound connector."
+    },
+    {
+      "id": "input.mimeType",
+      "label": "MIME type override",
+      "group": "input",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "input.mimeType"
+      },
+      "feel": "optional",
+      "optional": true,
+      "condition": {
+        "allMatch": [
+          {
+            "property": "operation",
+            "oneOf": [
+              "classify",
+              "decisions",
+              "extract",
+              "summarize"
+            ],
+            "type": "simple"
+          },
+          {
+            "property": "input.source",
+            "equals": "document",
+            "type": "simple"
+          }
+        ]
+      },
+      "placeholder": "application/pdf",
+      "description": "Only needed when the document has no content type in its metadata. Supported: application/pdf, image/jpeg, image/png, image/tiff."
+    },
+    {
+      "id": "input.chunks",
+      "label": "Chunks",
+      "group": "input",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "input.chunks"
+      },
+      "feel": "required",
+      "condition": {
+        "allMatch": [
+          {
+            "property": "operation",
+            "equals": "classify",
+            "type": "simple"
+          },
+          {
+            "property": "input.source",
+            "equals": "chunks",
+            "type": "simple"
+          }
+        ]
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "placeholder": "=[\"first text\", \"second text\"]",
+      "description": "List of strings, or list of <code>{id, text}</code> contexts. Max 50, billed once for the shared labels."
+    },
+    {
+      "id": "classify.labels",
+      "label": "Labels",
+      "group": "classify",
+      "type": "Text",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "classify.labels"
+      },
+      "feel": "required",
+      "condition": {
+        "property": "operation",
+        "equals": "classify",
+        "type": "simple"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "value": "={\n  \"billing\": \"Is this about a charge, invoice, refund or payment?\",\n  \"technical\": \"Is this about a bug or something not working?\",\n  \"account\": \"Is this about login, access or account settings?\"\n}",
+      "description": "Context of <code>label: rubric</code>, or a list of <code>{name, rubric}</code>. A rubric is a yes/no question where yes means the label applies. Up to 20 labels (16 in multi-label mode)."
+    },
+    {
+      "id": "classify.multiLabel",
+      "label": "Multi-label",
+      "group": "classify",
+      "type": "Boolean",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "classify.multiLabel"
+      },
+      "value": false,
+      "condition": {
+        "property": "operation",
+        "equals": "classify",
+        "type": "simple"
+      },
+      "description": "Score every label independently and return all labels above the threshold."
+    },
+    {
+      "id": "classify.threshold",
+      "label": "Multi-label threshold",
+      "group": "classify",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "classify.threshold"
+      },
+      "feel": "optional",
+      "optional": true,
+      "condition": {
+        "allMatch": [
+          {
+            "property": "operation",
+            "equals": "classify",
+            "type": "simple"
+          },
+          {
+            "property": "classify.multiLabel",
+            "equals": true,
+            "type": "simple"
+          }
+        ]
+      },
+      "placeholder": "0.5",
+      "description": "Labels scoring at or above this value are returned in matchedLabels."
+    },
+    {
+      "id": "classify.reasoning",
+      "label": "Include reasoning",
+      "group": "classify",
+      "type": "Boolean",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "classify.reasoning"
+      },
+      "value": true,
+      "condition": {
+        "property": "operation",
+        "equals": "classify",
+        "type": "simple"
+      },
+      "description": "Adds a one-sentence explanation (single-label only). Turn off to save a model call."
+    },
+    {
+      "id": "decisions.model",
+      "label": "Model",
+      "group": "decisions",
+      "type": "Dropdown",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "decisions.model"
+      },
+      "value": "classify-1",
+      "condition": {
+        "property": "operation",
+        "equals": "decisions",
+        "type": "simple"
+      },
+      "choices": [
+        {
+          "name": "classify-1 (pinned)",
+          "value": "classify-1"
+        },
+        {
+          "name": "classify (latest)",
+          "value": "classify"
+        }
+      ]
+    },
+    {
+      "id": "decisions.questions",
+      "label": "Questions",
+      "group": "decisions",
+      "type": "Text",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "decisions.questions"
+      },
+      "feel": "required",
+      "condition": {
+        "property": "operation",
+        "equals": "decisions",
+        "type": "simple"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "value": "={\n  \"category\": {\n    \"type\": \"choice\",\n    \"instructions\": \"Which category best describes the request?\",\n    \"criteria\": {\n      \"billing\": \"About a charge, invoice, refund or payment.\",\n      \"technical\": \"About a bug or something not working.\"\n    }\n  },\n  \"churnRisk\": {\n    \"type\": \"noul\",\n    \"instructions\": \"Is the customer threatening to cancel or leave?\"\n  },\n  \"severity\": {\n    \"type\": \"score\",\n    \"criteria\": [\"Low\", \"Medium\", \"High\", \"Critical\"]\n  }\n}",
+      "description": "Context of named questions. Types: <code>choice</code> (criteria map), <code>noul</code> (yes/no probability), <code>score</code> (2 to 10 ordered levels). Each question is a separately billed model call."
+    },
+    {
+      "id": "extract.model",
+      "label": "Model",
+      "group": "extract",
+      "type": "Dropdown",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "extract.model"
+      },
+      "value": "extract-1",
+      "condition": {
+        "property": "operation",
+        "equals": "extract",
+        "type": "simple"
+      },
+      "choices": [
+        {
+          "name": "extract-1 (pinned)",
+          "value": "extract-1"
+        },
+        {
+          "name": "extract (latest)",
+          "value": "extract"
+        }
+      ]
+    },
+    {
+      "id": "extract.schemaMode",
+      "label": "Schema mode",
+      "group": "extract",
+      "type": "Dropdown",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "extract.schemaMode"
+      },
+      "value": "fields",
+      "condition": {
+        "property": "operation",
+        "equals": "extract",
+        "type": "simple"
+      },
+      "choices": [
+        {
+          "name": "Simple fields (name: description)",
+          "value": "fields"
+        },
+        {
+          "name": "JSON schema (nested objects, line items, enums)",
+          "value": "jsonSchema"
+        }
+      ]
+    },
+    {
+      "id": "extract.fields",
+      "label": "Fields",
+      "group": "extract",
+      "type": "Text",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "extract.fields"
+      },
+      "feel": "required",
+      "condition": {
+        "allMatch": [
+          {
+            "property": "operation",
+            "equals": "extract",
+            "type": "simple"
+          },
+          {
+            "property": "extract.schemaMode",
+            "equals": "fields",
+            "type": "simple"
+          }
+        ]
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "value": "={\n  \"vendor\": \"Name of the company that issued the invoice\",\n  \"invoiceNumber\": \"Invoice number or ID\",\n  \"invoiceDate\": \"Date the invoice was issued\",\n  \"totalAmount\": \"Total amount due, including tax\"\n}",
+      "description": "Context of <code>fieldName: description</code>. Instruction-style descriptions work best."
+    },
+    {
+      "id": "extract.jsonSchema",
+      "label": "JSON schema",
+      "group": "extract",
+      "type": "Text",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "extract.jsonSchema"
+      },
+      "feel": "required",
+      "condition": {
+        "allMatch": [
+          {
+            "property": "operation",
+            "equals": "extract",
+            "type": "simple"
+          },
+          {
+            "property": "extract.schemaMode",
+            "equals": "jsonSchema",
+            "type": "simple"
+          }
+        ]
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "value": "={\n  \"type\": \"object\",\n  \"properties\": {\n    \"vendor\": {\"type\": \"string\", \"description\": \"Company that issued the invoice\"},\n    \"lineItems\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"description\": {\"type\": \"string\"},\n          \"amount\": {\"type\": \"number\"}\n        }\n      }\n    },\n    \"status\": {\"type\": \"string\", \"enum\": [\"paid\", \"unpaid\", \"overdue\"]}\n  }\n}",
+      "description": "Inline JSON schema. <code>$ref</code> and <code>$defs</code> are not supported. Enum fields are routed to the classifier."
+    },
+    {
+      "id": "extract.instruction",
+      "label": "Instruction",
+      "group": "extract",
+      "type": "Text",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "extract.instruction"
+      },
+      "feel": "optional",
+      "optional": true,
+      "condition": {
+        "property": "operation",
+        "equals": "extract",
+        "type": "simple"
+      },
+      "description": "Optional global instruction applied to every field."
+    },
+    {
+      "id": "extract.threshold",
+      "label": "Minimum entity confidence",
+      "group": "extract",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "extract.threshold"
+      },
+      "feel": "optional",
+      "optional": true,
+      "condition": {
+        "property": "operation",
+        "equals": "extract",
+        "type": "simple"
+      },
+      "placeholder": "0",
+      "description": "ScaleDown drops entities below this confidence (0 to 1)."
+    },
+    {
+      "id": "extract.topN",
+      "label": "Max matches per field",
+      "group": "extract",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "extract.topN"
+      },
+      "feel": "optional",
+      "optional": true,
+      "condition": {
+        "property": "operation",
+        "equals": "extract",
+        "type": "simple"
+      },
+      "placeholder": "0 (unlimited)"
+    },
+    {
+      "id": "extract.contextChars",
+      "label": "Context characters",
+      "group": "extract",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "extract.contextChars"
+      },
+      "feel": "optional",
+      "optional": true,
+      "condition": {
+        "property": "operation",
+        "equals": "extract",
+        "type": "simple"
+      },
+      "placeholder": "500",
+      "description": "Characters of surrounding text returned per match. Set 0 to keep output small."
+    },
+    {
+      "id": "summarize.model",
+      "label": "Model",
+      "group": "summarize",
+      "type": "Dropdown",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "summarize.model"
+      },
+      "value": "summarize-1",
+      "condition": {
+        "property": "operation",
+        "equals": "summarize",
+        "type": "simple"
+      },
+      "choices": [
+        {
+          "name": "summarize-1 (pinned)",
+          "value": "summarize-1"
+        },
+        {
+          "name": "summarize (latest)",
+          "value": "summarize"
+        }
+      ]
+    },
+    {
+      "id": "summarize.instruction",
+      "label": "Instruction",
+      "group": "summarize",
+      "type": "Text",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "summarize.instruction"
+      },
+      "feel": "optional",
+      "optional": true,
+      "condition": {
+        "property": "operation",
+        "equals": "summarize",
+        "type": "simple"
+      },
+      "placeholder": "Use bullet points. Focus on amounts, dates and decisions.",
+      "description": "Format, language, focus or length guidance."
+    },
+    {
+      "id": "summarize.maxTokens",
+      "label": "Max output tokens",
+      "group": "summarize",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "summarize.maxTokens"
+      },
+      "feel": "optional",
+      "optional": true,
+      "condition": {
+        "property": "operation",
+        "equals": "summarize",
+        "type": "simple"
+      },
+      "placeholder": "1000",
+      "description": "Capped at 1000 by ScaleDown. Output is flagged as truncated when the limit is hit."
+    },
+    {
+      "id": "compress.context",
+      "label": "Context",
+      "group": "compress",
+      "type": "Text",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "compress.context"
+      },
+      "feel": "optional",
+      "condition": {
+        "property": "operation",
+        "equals": "compress",
+        "type": "simple"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "description": "Background text to compress, e.g. retrieved documents or chat history. Text only."
+    },
+    {
+      "id": "compress.prompt",
+      "label": "Prompt",
+      "group": "compress",
+      "type": "Text",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "compress.prompt"
+      },
+      "feel": "optional",
+      "condition": {
+        "property": "operation",
+        "equals": "compress",
+        "type": "simple"
+      },
+      "constraints": {
+        "notEmpty": true
+      },
+      "description": "The question you will send to your LLM. Kept intact."
+    },
+    {
+      "id": "compress.rate",
+      "label": "Compression rate",
+      "group": "compress",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "compress.rate"
+      },
+      "feel": "optional",
+      "value": "auto",
+      "condition": {
+        "property": "operation",
+        "equals": "compress",
+        "type": "simple"
+      },
+      "description": "<code>auto</code> (recommended) or a number from 0 to 1 for the fraction of tokens to remove, e.g. 0.6."
+    },
+    {
+      "id": "review.minConfidence",
+      "label": "Minimum confidence",
+      "group": "review",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "review.minConfidence"
+      },
+      "feel": "optional",
+      "optional": true,
+      "condition": {
+        "property": "operation",
+        "oneOf": [
+          "classify",
+          "decisions",
+          "extract"
+        ],
+        "type": "simple"
+      },
+      "placeholder": "0.7",
+      "description": "Results below this confidence set <code>needsReview = true</code>. Classify always returns a winner, so set this for routing."
+    },
+    {
+      "id": "review.onLowConfidence",
+      "label": "On low confidence",
+      "group": "review",
+      "type": "Dropdown",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "review.onLowConfidence"
+      },
+      "value": "flag",
+      "condition": {
+        "property": "operation",
+        "oneOf": [
+          "classify",
+          "decisions",
+          "extract"
+        ],
+        "type": "simple"
+      },
+      "choices": [
+        {
+          "name": "Flag and continue (route with a gateway on needsReview)",
+          "value": "flag"
+        },
+        {
+          "name": "Fail with error code SCALEDOWN_LOW_CONFIDENCE",
+          "value": "error"
+        }
+      ]
+    },
+    {
+      "id": "connection.baseUrl",
+      "label": "Base URL",
+      "group": "advanced",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "connection.baseUrl"
+      },
+      "optional": true,
+      "value": "https://api.scaledown.xyz",
+      "description": "Change only for a proxy or a private ScaleDown deployment."
+    },
+    {
+      "id": "connection.timeoutSeconds",
+      "label": "Timeout (seconds)",
+      "group": "advanced",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "connection.timeoutSeconds"
+      },
+      "feel": "optional",
+      "value": "120",
+      "description": "Large PDFs and long summaries can take a while."
+    },
+    {
+      "id": "connection.includeOcrText",
+      "label": "Include OCR text",
+      "group": "advanced",
+      "type": "Boolean",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "connection.includeOcrText"
+      },
+      "value": false,
+      "condition": {
+        "property": "operation",
+        "oneOf": [
+          "classify",
+          "decisions",
+          "extract",
+          "summarize"
+        ],
+        "type": "simple"
+      },
+      "description": "Return the text ScaleDown read from the document. Can be large; Camunda limits job output to about 1.5 MB."
+    },
+    {
+      "id": "connection.includeRawResponse",
+      "label": "Include raw response",
+      "group": "advanced",
+      "type": "Boolean",
+      "binding": {
+        "type": "zeebe:input",
+        "name": "connection.includeRawResponse"
+      },
+      "value": false,
+      "description": "Add the unmodified ScaleDown response as <code>raw</code>. Useful for debugging."
+    },
+    {
+      "id": "resultVariable",
+      "label": "Result variable",
+      "group": "output",
+      "type": "String",
+      "binding": {
+        "type": "zeebe:taskHeader",
+        "key": "resultVariable"
+      },
+      "value": "scaledownResult",
+      "description": "Name of the process variable for the whole result."
+    },
+    {
+      "id": "resultExpression",
+      "label": "Result expression",
+      "group": "output",
+      "type": "Text",
+      "feel": "required",
+      "binding": {
+        "type": "zeebe:taskHeader",
+        "key": "resultExpression"
+      },
+      "description": "Map parts of the result to variables, e.g. <code>={docType: response.topLabel, needsReview: response.needsReview}</code>."
+    },
+    {
+      "id": "errorExpression",
+      "label": "Error expression",
+      "group": "error",
+      "type": "Text",
+      "feel": "required",
+      "binding": {
+        "type": "zeebe:taskHeader",
+        "key": "errorExpression"
+      },
+      "description": "Turn connector errors into BPMN errors, e.g. <code>=if error.code = \"SCALEDOWN_LOW_CONFIDENCE\" then bpmnError(\"LOW_CONFIDENCE\", error.message) else null</code>."
+    },
+    {
+      "id": "retryCount",
+      "label": "Retries",
+      "group": "retries",
+      "type": "String",
+      "value": "3",
+      "feel": "optional",
+      "binding": {
+        "type": "zeebe:taskDefinition",
+        "property": "retries"
+      },
+      "description": "Used for rate limits, timeouts and ScaleDown outages. Bad input, bad API key and missing credits fail immediately."
+    },
+    {
+      "id": "retryBackoff",
+      "label": "Retry backoff",
+      "group": "retries",
+      "type": "String",
+      "value": "PT30S",
+      "binding": {
+        "type": "zeebe:taskHeader",
+        "key": "retryBackoff"
+      },
+      "description": "ISO-8601 duration between retries. A Retry-After header from ScaleDown takes precedence."
+    }
+  ],
+  "icon": {
+    "contents": "data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 18 18'%3E%3Crect width='18' height='18' rx='4' fill='%23111827'/%3E%3Cpath d='M4 5h10M6 9h6M8 13h2' stroke='%2322d3ee' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
+  }
+}
