@@ -7,8 +7,6 @@ compress context before an LLM call. It works on plain text, PDFs and images (OC
 Every answer comes back as structured data with a confidence score, so gateways, business rules
 and user tasks can use it directly. No prompt parsing, no JSON repair.
 
-
-
 ## At a glance
 
 <table>
@@ -235,13 +233,18 @@ Four ScaleDown models, five connector operations: Decisions runs on the Classify
 - Java 21 and Maven, to build
 - A ScaleDown API key
 
-### 1. Build
+### 1. Get the jar
+
+**Download:** get `scaledown-connector-1.0.0.jar` and `scaledown-connector.json` from
+[Releases](https://github.com/rajeshponna/camunda-scaledown-connector/releases).
+
+**Or build it yourself:**
 
 ```bash
 mvn clean package
 ```
 
-This produces `target/scaledown-connector-1.0.1.jar`.
+This produces `target/scaledown-connector-1.0.0.jar`.
 
 ### 2. Add your API key as a secret
 
@@ -263,7 +266,7 @@ In `docker-compose.yaml`, under the `connectors` service:
       - LOADER_PATH=/opt/custom
     env_file: connector-secrets.txt
     volumes:
-      - ./scaledown-connector-1.0.1.jar:/opt/custom/scaledown-connector.jar
+      - ./scaledown-connector-1.0.0.jar:/opt/custom/scaledown-connector.jar
 ```
 
 Then recreate the container:
@@ -274,9 +277,6 @@ docker compose logs connectors | grep -i scaledown
 ```
 
 You should see the connector registered with type `io.github.rajeshponna:scaledown:1`.
-
-**Alternative:** `docker build -t scaledown-connectors .` with the included `Dockerfile`, and use
-that image instead of `camunda/connectors-bundle`.
 
 ### 4. Import the element template
 
@@ -647,17 +647,15 @@ Map codes to BPMN errors in **Error expression**:
 
 ## Examples
 
-All examples are in [examples](examples) and run on Camunda 8.9 Self-Managed.
+The examples run on Camunda 8.9 Self-Managed.
 
 | Example | What it shows |
 |---|---|
-| [`scaledown-connector-test.bpmn`](examples/scaledown-connector-test.bpmn) | One task per operation, to check your setup |
-| [`claim-intake.bpmn`](examples/claim-intake.bpmn) | Classify a claim, route on the label |
-| [`support-triage/`](examples/support-triage) | Simple support ticket triage with Classify and a review path |
-| [`invoice-showcase/`](examples/invoice-showcase) | Upload an invoice, classify, extract fields, approve; includes forms and sample documents |
-| [`full-demo/`](examples/full-demo) | Ticket text plus an attachment, all five operations in parallel, OCR, low-confidence review |
+| [`example-bpmn/`](example-bpmn) | Quick start: a start form with text and file upload, ScaleDown tasks with OCR, a sample invoice PDF and a Tasklist screenshot |
+| [`examples/claim-intake.bpmn`](examples/claim-intake.bpmn) | Classify a claim and route on the label |
 
-Each folder has its own README with steps.
+To try the quick start: deploy `sclae-down.bpmn` and `scalefrom.form` from Modeler, start the
+process in Tasklist, type a message and upload `doc_file_sample_invoice.pdf`.
 
 ---
 
@@ -714,7 +712,6 @@ Measured on Camunda 8.9 Self-Managed with a real ScaleDown key, using one sample
 | `SCALEDOWN_UNAUTHORIZED` | Wrong or revoked key | Check the secret value, recreate the container |
 | `SCALEDOWN_INVALID_INPUT`: document expected | File picker value is a list | Use `=doc_file[1]`, not `=doc_file` |
 | Classify ignores the uploaded file | Input source still set to Text | Set **Input source** to `document` |
-| Extract on a document returns HTTP 400 "requires input text" | Connector older than 1.0.1 | Upgrade to 1.0.1 or later |
 | Parallel results overwrite each other | Same result variable on several tasks | Use `classifyResult`, `extractResult`, and so on |
 | Properties panel shows raw input mappings | Template not applied | Template → Select → ScaleDown Connector |
 | Job output too large | `ocrText` on a big document | Turn off **Include OCR text** |
@@ -744,12 +741,8 @@ scaledown-connector/
 │   ├── doc_file_sample_invoice.pdf          sample invoice to upload
 │   ├── sclae-down.png                       process diagram
 │   └── tasklist.png                         Tasklist screenshot
-├── examples/                                more example processes
-│   ├── scaledown-connector-test.bpmn        one task per operation, to check setup
-│   ├── claim-intake.bpmn                    classify a claim and route it
-│   ├── support-triage/                      ticket triage with a review path
-│   ├── invoice-showcase/                    invoice upload, classify, extract, approve
-│   └── full-demo/                           all five operations in parallel with OCR
+├── examples/
+│   └── claim-intake.bpmn                    classify a claim and route it
 └── src/
     ├── main/
     │   ├── java/io/github/rajeshponna/scaledown/
@@ -790,7 +783,7 @@ scaledown-connector/
 mvn clean package
 ```
 
-This runs the tests and creates `target/scaledown-connector-1.0.1.jar`.
+This runs the tests and creates `target/scaledown-connector-1.0.0.jar`.
 
 To build without running the tests:
 
@@ -800,7 +793,7 @@ mvn clean package -DskipTests
 
 ### Match your Camunda version
 
-In `pom.xml`, set `version.connectors` to your Camunda version (default `8.9.12`):
+In `pom.xml`, set `version.connectors` to your Camunda version (default `8.9.20`):
 
 ```xml
 <properties>
@@ -813,15 +806,8 @@ already inside the Camunda connectors runtime.
 
 ### After building
 
-Copy `target/scaledown-connector-1.0.1.jar` next to your `docker-compose.yaml` and follow
-[Quick start](#quick-start) from step 3.
-
-```bash
-mvn clean package        # build and run tests
-mvn clean package -DskipTests
-```
-
-Set `version.connectors` in `pom.xml` to your Camunda version (default 8.9.12).
+Copy `target/scaledown-connector-1.0.0.jar` next to your `docker-compose.yaml` and follow
+[Quick start](#quick-start) from step 2.
 
 ---
 
