@@ -152,7 +152,7 @@
         <zeebe:taskHeaders>
           <zeebe:header key="elementTemplateVersion" value="1" />
           <zeebe:header key="elementTemplateId" value="io.github.rajeshponna.scaledown.v1" />
-          <zeebe:header key="resultVariable" value="scaledownResult" />
+          <zeebe:header key="resultVariable" value="compressResult" />
           <zeebe:header key="retryBackoff" value="PT30S" />
         </zeebe:taskHeaders>
       </bpmn:extensionElements>
